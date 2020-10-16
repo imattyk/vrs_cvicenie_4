@@ -11,8 +11,8 @@
 #include "main.h"
 
 // defines for input port used by button
-#define		GPIO_PORT_BUTTON				GPIOA
-#define		GPIO_PIN_BUTTON					3
+#define		GPIO_PORT_BUTTON				GPIOB
+#define		GPIO_PIN_BUTTON					4
 
 // defines for "checkButtonState"
 #define		TRIGGER_RISE					0
