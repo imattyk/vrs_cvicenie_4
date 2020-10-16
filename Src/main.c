@@ -71,26 +71,28 @@ int main(void)
 
   /* Configure GPIOA-4 pin as an output pin - LED */
 
-   //RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-   GPIOB->MODER &= ~(GPIO_MODER_MODER4);
-   GPIOB->MODER |= GPIO_MODER_MODER4_0;
-   GPIOB->OTYPER &= ~(GPIO_OTYPER_OT_4);
-   GPIOB->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR4);
-   GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPDR4);
+   RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+   GPIOA->MODER &= ~(GPIO_MODER_MODER4);
+   GPIOA->MODER |= GPIO_MODER_MODER4_0;
+   GPIOA->OTYPER &= ~(GPIO_OTYPER_OT_4);
+   GPIOA->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR4);
+   GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR4);
 
 
   while (1)
   {
 	  if(switch_state)
 	  {
-		  GPIOB->BSRR |= GPIO_BSRR_BS_4;
+		  GPIOA->BSRR |= GPIO_BSRR_BS_4;
 		  for(uint16_t i=0; i<0xFF00; i++){}
-		  GPIOB->BRR |= GPIO_BRR_BR_4;
+		  GPIOA->BRR |= GPIO_BRR_BR_4;
 		  for(uint16_t i=0; i<0xFF00; i++){}
 	  }
 	  else
 	  {
-		  GPIOB->BRR |= GPIO_BRR_BR_4;
+		  GPIOA->BSRR |= GPIO_BSRR_BS_4;
+		  for(uint16_t i=0; i<0xFF00; i++){}
+		  GPIOA->BRR |= GPIO_BRR_BR_4;
 	  }
   }
 
@@ -134,7 +136,10 @@ void SystemClock_Config(void)
 
 uint8_t checkButtonState(GPIO_TypeDef* PORT, uint8_t PIN, uint8_t edge, uint8_t samples_window, uint8_t samples_required)
 {
-	  //type your code for "checkButtonState" implementation here:
+	if (PORT->IDR & PIN){
+
+
+	}
 }
 
 
@@ -151,7 +156,7 @@ void EXTI4_IRQHandler(void)
 
 	/* Clear EXTI4 pending register flag */
 
-		//type your code for pending register flag clear here:
+	EXTI->PR |= (EXTI_PR_PIF4);
 }
 
 /* USER CODE BEGIN 4 */
