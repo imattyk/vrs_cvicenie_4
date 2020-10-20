@@ -96,8 +96,6 @@ int main(void)
 	  else
 	  {
 		  GPIOA->BRR |= GPIO_BRR_BR_4;
-		  /*for(uint16_t i=0; i<0xFF00; i++){}
-		  GPIOA->BRR |= GPIO_BRR_BR_4;*/
 	  }
   }
 
@@ -151,7 +149,7 @@ uint8_t checkButtonState(GPIO_TypeDef* PORT, uint8_t PIN, uint8_t edge, uint8_t 
 		while(1){
 			if((GPIOB->IDR & GPIO_IDR_4) == RELEASED){
 				helpsamples++;
-				//for(uint16_t i=0; i<0xFF00; i++){}
+				for(uint16_t i=0; i<0xFF00; i++){}
 				if(helpsamples == samples_window){helpsamples=0;return 1;}
 			}
 			else{helpsamples=0;break;}
