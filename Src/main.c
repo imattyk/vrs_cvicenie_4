@@ -26,6 +26,9 @@ void SystemClock_Config(void);
 uint8_t check_button_state(GPIO_TypeDef* PORT, uint8_t PIN);
 
 uint8_t switch_state = 0;
+uint8_t help = 0;
+uint8_t pin_state = 0x00;
+uint8_t old_pin_state = 0x10;
 
 int main(void)
 {
@@ -81,8 +84,10 @@ int main(void)
 
   while (1)
   {
+	  pin_state = GPIOB->IDR & GPIO_IDR_4;
 	  if(switch_state)
 	  {
+
 		  GPIOA->BSRR |= GPIO_BSRR_BS_4;
 		  for(uint16_t i=0; i<0xFF00; i++){}
 		  GPIOA->BRR |= GPIO_BRR_BR_4;
@@ -90,8 +95,6 @@ int main(void)
 	  }
 	  else
 	  {
-		  GPIOA->BSRR |= GPIO_BSRR_BS_4;
-		  for(uint16_t i=0; i<0xFF00; i++){}
 		  GPIOA->BRR |= GPIO_BRR_BR_4;
 	  }
   }
@@ -133,13 +136,48 @@ void SystemClock_Config(void)
   LL_SetSystemCoreClock(8000000);
 }
 
+#define PRESSED 0x00
+#define RELEASED 0x10
+uint8_t helpsamples = 0;
 
 uint8_t checkButtonState(GPIO_TypeDef* PORT, uint8_t PIN, uint8_t edge, uint8_t samples_window, uint8_t samples_required)
 {
-	if (PORT->IDR & PIN){
+	pin_state = GPIOB->IDR & GPIO_IDR_4;
+	if (old_pin_state == RELEASED && pin_state == PRESSED && edge == TRIGGER_RISE){
+		// rising
+		old_pin_state = pin_state;
+		while(1){
+			if((GPIOB->IDR & GPIO_IDR_4) == RELEASED){
+				helpsamples++;
+				for(uint16_t i=0; i<0xFF00; i++){}
+				if(helpsamples == samples_window){helpsamples=0;return 1;}
+			}
+			else{helpsamples=0;break;}
+		}
 
-
+		return 0;
 	}
+	if (old_pin_state == PRESSED && pin_state == RELEASED && edge == TRIGGER_FALL){
+		// falling
+		old_pin_state = pin_state;
+		while(1){
+			if((GPIOB->IDR & GPIO_IDR_4) == RELEASED){
+				helpsamples++;
+				for(uint16_t i=0; i<0xFF00; i++){}
+				if(helpsamples == samples_window){helpsamples=0;return 1;}
+			}
+			else{helpsamples=0;break;}
+		}
+		return 0;
+	}
+	/*if ((old_pin_state == RELEASED && pin_state == RELEASED) || (old_pin_state == PRESSED && pin_state == PRESSED)){
+		// 0 or 1
+		pin_state = GPIOB->IDR & GPIO_IDR_4;
+		old_pin_state = pin_state;
+		return 0;
+	}*/
+	old_pin_state = pin_state;
+	helpsamples=0;
 }
 
 
@@ -147,7 +185,7 @@ void EXTI4_IRQHandler(void)
 {
 	if(checkButtonState(GPIO_PORT_BUTTON,
 						GPIO_PIN_BUTTON,
-						BUTTON_EXTI_TRIGGER,
+						1,
 						BUTTON_EXTI_SAMPLES_WINDOW,
 						BUTTON_EXTI_SAMPLES_REQUIRED))
 	{

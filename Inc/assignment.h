@@ -19,8 +19,12 @@
 #define		TRIGGER_FALL					1
 
 #define		BUTTON_EXTI_TRIGGER				TRIGGER_FALL
-#define		BUTTON_EXTI_SAMPLES_WINDOW		30
+#define		BUTTON_EXTI_SAMPLES_WINDOW		3
 #define		BUTTON_EXTI_SAMPLES_REQUIRED	20
+
+#define 	GPIOB_BASE_ADDR					0x48000400
+#define 	GPIOB_IDR_REG					0x10U
+#define     BUTTON_GET_STATE				*((volatile uint32_t *)((uint32_t)(GPIOB_BASE_ADDR + GPIOB_IDR_REG))) & (1 << 5)
 
 
 /**
